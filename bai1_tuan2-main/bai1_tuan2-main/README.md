@@ -12,3 +12,6 @@ Chương trình triển khai giao tiếp UART1 trên vi điều khiển STM32F10
 - Mạch nạp ST-Link V2
 - Mạch chuyển đổi USB-to-UART PL2303/CP2102
 ## 3. Biên dịch và nap
+-make clean 
+-make 
+-make flash
