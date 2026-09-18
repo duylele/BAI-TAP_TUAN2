@@ -1,29 +1,31 @@
-TARGET = bai5
-
-CC = arm-none-eabi-gcc
-LD = arm-none-eabi-gcc
+# Compiler toolchain
+CC      = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy
-RM = rm -f
+SIZE    = arm-none-eabi-size
 
-CFLAGS = -mcpu=cortex-m3 -mthumb -O0 -Wall -g \
-         -I. \
-         -ICMSIS \
-         -DSTM32F10X_MD
+# Target file name
+TARGET  = bai5
 
-LDFLAGS = -mcpu=cortex-m3 -mthumb -specs=nosys.specs -T stm32_flash.ld -Wl,-Map=$(TARGET).map,--gc-sections
+# C sources and Include paths
+C_SOURCES = main.c
+ASM_SOURCES = startup_stm32f10x_md.s
 
-SRCS = main.c startup_stm32f10x_md.s
+CFLAGS  = -mcpu=cortex-m3 -mthumb -O0 -Wall -g -I. -ICMSIS -DSTM32F10X_MD
+LDFLAGS = -mcpu=cortex-m3 -mthumb --specs=nano.specs --specs=nosys.specs -T stm32_flash.ld -Wl,-Map=$(TARGET).map,--gc-sections
 
-all: $(TARGET).elf $(TARGET).hex $(TARGET).bin
+all: $(TARGET).bin
 
-$(TARGET).elf: $(SRCS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
-
-$(TARGET).hex: $(TARGET).elf
-	$(OBJCOPY) -O ihex $< $@
+$(TARGET).elf: $(C_SOURCES) $(ASM_SOURCES)
+	$(CC) $(CFLAGS) $(C_SOURCES) $(ASM_SOURCES) $(LDFLAGS) -o $@
+	$(SIZE) $@
 
 $(TARGET).bin: $(TARGET).elf
 	$(OBJCOPY) -O binary $< $@
 
 clean:
-	$(RM) $(TARGET).elf $(TARGET).hex $(TARGET).bin $(TARGET).map
+	rm -f $(TARGET).elf $(TARGET).bin $(TARGET).hex $(TARGET).map
+
+flash: $(TARGET).bin
+	st-flash write $(TARGET).bin 0x8000000
+
+.PHONY: all clean flash
