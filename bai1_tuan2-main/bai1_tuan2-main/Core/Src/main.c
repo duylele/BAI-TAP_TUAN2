@@ -13,7 +13,7 @@
 #define USART1_CR1      *(volatile uint32_t *)(USART1_BASE + 0x0C)
 
 #define BUFFER_SIZE     128
-#define HEADER_PREFIX   "D23DCDT075: " // Đã cập nhật mã D23DCDT075
+#define HEADER_PREFIX   "D23DCDT075: " 
 
 char rx_buffer[BUFFER_SIZE];
 uint16_t rx_index = 0;
@@ -59,9 +59,11 @@ int main(void) {
         if (c == '!') {
             rx_buffer[rx_index] = '\0';
 
+            // Gửi ký tự xuống dòng \r\n TRƯỚC để tách biệt với dòng dữ liệu gõ từ PC
+            UART1_SendString("\r\n");
             UART1_SendString(HEADER_PREFIX);
             UART1_SendString(rx_buffer);
-            UART1_SendString("\n\r");
+            UART1_SendString("\r\n");
 
             rx_index = 0;
         } else {
